@@ -1,4 +1,4 @@
-package com.device;
+package com.device.common;
 
 import io.hypersistence.tsid.TSID;
 

@@ -1,5 +1,6 @@
 package com.device;
 
+import com.device.common.TSIDGenerator;
 import io.hypersistence.tsid.TSID;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

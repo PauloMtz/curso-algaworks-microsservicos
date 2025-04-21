@@ -6,7 +6,7 @@
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/algasensors/microservices/device-management" />
     <extension name="coverage">
       <pattern>
-        <option name="PATTERN" value="com.device.*" />
+        <option name="PATTERN" value="com.device.common.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
