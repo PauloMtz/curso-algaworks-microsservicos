@@ -1,7 +1,7 @@
 package com.processing;
 
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.TimeBasedEpochRandomGenerator;
+import com.processing.common.UUIDGenerator;
+import com.processing.common.UUIDv7Utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

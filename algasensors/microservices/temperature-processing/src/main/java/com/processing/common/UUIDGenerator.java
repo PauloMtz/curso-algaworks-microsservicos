@@ -1,4 +1,4 @@
-package com.processing;
+package com.processing.common;
 
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedEpochRandomGenerator;

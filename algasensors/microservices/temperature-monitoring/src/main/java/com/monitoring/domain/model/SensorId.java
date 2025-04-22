@@ -1,4 +1,4 @@
-package com.device.domain.model;
+package com.monitoring.domain.model;
 
 import io.hypersistence.tsid.TSID;
 import jakarta.persistence.Embeddable;
@@ -11,8 +11,8 @@ import java.util.Objects;
 
 @Getter
 @Embeddable
-@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode
 public class SensorId {
 
     private TSID value;
