@@ -1,5 +1,8 @@
 package com.device.api.controller;
 
+import com.device.api.client.SensorMonitoringClient;
+import com.device.api.model.SensorDetailResponseDto;
+import com.device.api.model.SensorMonitoringResponseDto;
 import com.device.api.model.SensorRequestDto;
 import com.device.api.model.SensorResponseDto;
 import com.device.common.TSIDGenerator;
@@ -8,8 +11,6 @@ import com.device.domain.model.SensorId;
 import com.device.domain.repository.SensorRepository;
 import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -23,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class SensorController {
 
     private final SensorRepository sensorRepository;
+    private final SensorMonitoringClient sensorMonitoringClient;
 
     @GetMapping("{sensorId}")
     public SensorResponseDto getOne(@PathVariable TSID sensorId) {
@@ -32,11 +34,24 @@ public class SensorController {
         return toModel(sensor);
     }
 
+    @GetMapping("{sensorId}/detail")
+    public SensorDetailResponseDto getDetailSensor(@PathVariable TSID sensorId) {
+        Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        SensorMonitoringResponseDto sensorDetailDto = sensorMonitoringClient.getDetailSensor(sensorId);
+        SensorResponseDto sensorResponseDto = toModel(sensor);
+
+        return SensorDetailResponseDto.builder()
+                .sensorMonitoringResponseDto(sensorDetailDto)
+                .sensorResponseDto(sensorResponseDto)
+                .build();
+    }
+
     @GetMapping
     public Page<SensorResponseDto> search(@PageableDefault Pageable pageable) {
         Page<Sensor> sensors = sensorRepository.findAll(pageable);
-        //return sensors.map(sensor -> toModel(sensor));
-        return sensors.map(this::toModel); // é a mesma coisa da linha acima
+        return sensors.map(this::toModel);
     }
 
     @PostMapping
@@ -87,6 +102,9 @@ public class SensorController {
         Sensor sensor = sensorRepository.findById(new SensorId(sensorId))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         sensorRepository.delete(sensor);
+
+        // quando excluir um sensor, desativar seu monitoramento
+        sensorMonitoringClient.disableMonitoring(sensorId);
     }
 
     @PutMapping("/{sensorId}/enable")
@@ -96,6 +114,8 @@ public class SensorController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         sensor.setEnabled(true);
         sensorRepository.save(sensor);
+
+        sensorMonitoringClient.enableMonitoring(sensorId);
     }
 
     @PutMapping("/{sensorId}/disable")
@@ -105,6 +125,8 @@ public class SensorController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         sensor.setEnabled(false);
         sensorRepository.save(sensor);
+
+        sensorMonitoringClient.disableMonitoring(sensorId);
     }
 
     private SensorResponseDto toModel(Sensor sensor) {

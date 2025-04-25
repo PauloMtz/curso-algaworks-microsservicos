@@ -6,8 +6,12 @@ import com.monitoring.domain.model.SensorMonitoring;
 import com.monitoring.domain.repository.SensorMonitoringRepository;
 import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/sensors/{sensorId}/monitoring")
@@ -34,16 +38,29 @@ public class SensorMonitoringController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void enable(@PathVariable TSID sensorId) {
         SensorMonitoring sensorMonitoring = findByIdOrDefault(sensorId);
+
+        // se o sensor já estiver ativo, retorna erro
+        if (sensorMonitoring.getEnabled()) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY);
+        }
+
         sensorMonitoring.setEnabled(true);
-        sensorMonitoringRepository.save(sensorMonitoring);
+        sensorMonitoringRepository.saveAndFlush(sensorMonitoring);
     }
 
+    @SneakyThrows
     @DeleteMapping("/enable")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void disable(@PathVariable TSID sensorId) {
         SensorMonitoring sensorMonitoring = findByIdOrDefault(sensorId);
+
+        // simula um erro por timeout
+        if (!sensorMonitoring.getEnabled()) {
+            Thread.sleep(Duration.ofSeconds(10).toMillis());
+        }
+
         sensorMonitoring.setEnabled(false);
-        sensorMonitoringRepository.save(sensorMonitoring);
+        sensorMonitoringRepository.saveAndFlush(sensorMonitoring);
     }
 
     private SensorMonitoring findByIdOrDefault(TSID sensorId) {
