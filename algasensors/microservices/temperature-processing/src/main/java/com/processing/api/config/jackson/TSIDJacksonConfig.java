@@ -1,4 +1,4 @@
-package com.monitoring.api.config.jackson;
+package com.processing.api.config.jackson;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -13,7 +13,6 @@ public class TSIDJacksonConfig {
     public Module tsidModule() {
         SimpleModule module = new SimpleModule();
         module.addSerializer(TSID.class, new TSIDToStringSerializer());
-        module.addDeserializer(TSID.class, new StringToTSIDDeserializer());
         return module;
     }
 }
